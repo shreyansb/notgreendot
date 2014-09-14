@@ -19,9 +19,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 
 
 public class Dots extends Activity {
@@ -37,13 +35,16 @@ public class Dots extends Activity {
         setContentView(R.layout.activity_dots);
 
         // construct data source
-        int currentWeek = getCurrentWeek();
+        WeekManager weekManager = new WeekManager(this);
+        int firstWeek = weekManager.getStartingWeek();
+        int currentWeek = weekManager.getCurrentWeek();
         ArrayList<Week> weeksArray = new ArrayList<Week>();
         for (int i = 0; i < numWeeks; i++) {
-            int weekNumber = currentWeek + i;
-            ArrayList<Integer> dots = WeeksStorage.getDotsForWeek(this, weekNumber);
-            WeeksStorage.getDotsForWeek(this, weekNumber);
-            Week w = new Week(currentWeek + i, dots, currentWeek);
+            int weekNumber = firstWeek + i;
+            Week w = new Week(
+                    weekNumber,
+                    WeeksStorage.getDotsForWeek(this, weekNumber),
+                    currentWeek);
             weeksArray.add(i, w);
         }
 
@@ -102,14 +103,6 @@ public class Dots extends Activity {
         share.putExtra(Intent.EXTRA_STREAM, Uri.parse(filePath));
         startActivity(Intent.createChooser(share, "Share Image"));
 
-    }
-
-    private int getCurrentWeek() {
-        Calendar cal = new GregorianCalendar();
-        Date date = new Date();
-        cal.setTime(date);
-        int currentWeek = cal.get(Calendar.WEEK_OF_YEAR);
-        return currentWeek;
     }
 
     private String getScreenshotName() {

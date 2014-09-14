@@ -41,7 +41,7 @@ public final class WeeksStorage {
     }
 
     public static ArrayList<Integer> getDotsForWeek(Context context, int weekNumber) {
-        Log.v("getDotsForWeek, weekNumer => ", "" + weekNumber);
+        Log.v("getDotsForWeek, weekNumber => ", "" + weekNumber);
 
         SharedPreferences db = getSharedPreferences(context);
 
