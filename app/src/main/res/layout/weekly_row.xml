@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
+    android:paddingLeft="@dimen/row_horizontal_margin"
+    android:paddingRight="@dimen/row_horizontal_margin"
+    android:paddingTop="@dimen/row_vertical_margin"
+    android:paddingBottom="@dimen/row_vertical_margin">
+
+    <TextView
+        android:id="@+id/weekLabel"
+        android:longClickable="false"
+        android:clickable="false"
+        android:layout_width="80dp"
+        android:textSize="16dp"
+        android:gravity="center_vertical"
+        android:layout_height="45dp" />
+
+    <ImageView
+        android:id="@+id/circle1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/circle_empty"
+        android:layout_marginLeft = "85dp"/>
+
+    <ImageView
+        android:id="@+id/circle2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/circle_empty"
+        android:layout_marginLeft = "140dp"/>
+
+    <ImageView
+        android:id="@+id/circle3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/circle_empty"
+        android:layout_marginLeft = "195dp"/>
+
+    <ImageView
+        android:id="@+id/heart"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/heart_empty"
+        android:layout_marginLeft = "250dp"/>
+
+</RelativeLayout>
