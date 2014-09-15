@@ -28,10 +28,8 @@ public final class WeekManager {
             db.edit()
                     .putString(startingWeekKey, Integer.toString(currentWeek))
                     .commit();
-            Log.v("getStartingWeek", "saved " + currentWeek);
             return currentWeek;
         } else {
-            Log.v("getStartingWeek", "found " + startingWeek);
             return Integer.parseInt(startingWeek);
         }
     }

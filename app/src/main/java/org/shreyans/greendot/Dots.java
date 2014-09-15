@@ -41,10 +41,7 @@ public class Dots extends Activity {
         ArrayList<Week> weeksArray = new ArrayList<Week>();
         for (int i = 0; i < numWeeks; i++) {
             int weekNumber = firstWeek + i;
-            Week w = new Week(
-                    weekNumber,
-                    WeeksStorage.getDotsForWeek(this, weekNumber),
-                    currentWeek);
+            Week w = new Week(this, weekNumber, currentWeek);
             weeksArray.add(i, w);
         }
 

@@ -18,17 +18,15 @@ import java.util.ArrayList;
 
 public class WeeksAdapter extends ArrayAdapter<Week> {
 
-    Context context;
-
     public WeeksAdapter(Context context, ArrayList<Week> weeks) {
         super(context, R.layout.weekly_row, weeks);
-        this.context = context;
     }
 
     @Override
     public View getView(int position, View weekView, ViewGroup parent) {
         // Get the data item for this position
         Week week = getItem(position);
+        week = new Week(getContext(), week.weekNumber, week.currentWeek);
 
         // Check if an existing view is being reused, otherwise inflate the view
         if (weekView == null) {
@@ -43,7 +41,7 @@ public class WeeksAdapter extends ArrayAdapter<Week> {
         int[] dots = new int[] {R.id.circle1, R.id.circle2, R.id.circle3, R.id.heart};
         for (int dotNumber = 0; dotNumber < dots.length; dotNumber++) {
             ImageView dot = (ImageView) weekView.findViewById(dots[dotNumber]);
-            new toggleImageView(context, dot, dotNumber, week);
+            new toggleImageView(dot, dotNumber, week);
         }
 
         // Lookup view for data population
@@ -56,7 +54,6 @@ public class WeeksAdapter extends ArrayAdapter<Week> {
 it toggle between the :emptyImage and :filledImage
  */
 class toggleImageView {
-    private Context context;
     private ImageView image;
     private Week week;
 
@@ -69,17 +66,16 @@ class toggleImageView {
     private final int heartEmpty = R.drawable.heart_empty;
     private final int heartFilled = R.drawable.heart_filled;
 
-    public toggleImageView(Context context,
-                           ImageView image,
+    public toggleImageView(ImageView image,
                            int dotNumber,
                            Week week) {
-        this.context = context;
         this.image = image;
         this.dotNumber = dotNumber;
         this.week = week;
-        this.isLast = week.days.size() == dotNumber + 1;
+        this.isLast = Week.weekLength == dotNumber + 1;
+
         addImageClickListener();
-        setAndSaveState(week.days.get(dotNumber));
+        setAndSaveState(week.dots.get(dotNumber));
     }
 
     private void addImageClickListener() {
@@ -115,22 +111,22 @@ class toggleImageView {
             }
         }
         state = newState;
-        week.days.set(dotNumber, state);
-        WeeksStorage.saveDotForWeek(context, dotNumber, state, week.weekNumber);
+        week.saveDot(dotNumber, state);
     }
 
     private Boolean isStateChangeAllowed(int newState) {
+        Week freshWeek = new Week(week.context, week.weekNumber, week.currentWeek);
         if (newState == 1) {
             if (dotNumber == 0) {
                 return true;
             } else {
-                return week.days.get(dotNumber - 1) == 1;
+                return freshWeek.dots.get(dotNumber - 1) == 1;
             }
         } else {
-            if (dotNumber == week.days.size() - 1) {
+            if (dotNumber == freshWeek.dots.size() - 1) {
                 return true;
             } else {
-                return week.days.get(dotNumber + 1) == 0;
+                return freshWeek.dots.get(dotNumber + 1) == 0;
             }
         }
     }

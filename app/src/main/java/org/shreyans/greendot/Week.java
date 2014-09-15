@@ -1,6 +1,12 @@
 package org.shreyans.greendot;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.text.TextUtils;
+import android.util.Log;
+
 import java.util.ArrayList;
+import java.util.StringTokenizer;
 
 /**
  * Created by shreyans on 9/13/14.
@@ -8,11 +14,62 @@ import java.util.ArrayList;
 public class Week {
     public int weekNumber;
     public int currentWeek;
-    public ArrayList<Integer> days;
+    public ArrayList<Integer> dots;
+    public Context context;
 
-    public Week(int weekNumber, ArrayList<Integer> days, int currentWeek) {
+    private static final String sharedPrefName = "dotsDB";
+    private static final String defaultWeekAsString = "0,0,0,0";
+    public static final int weekLength = 4;
+
+    public Week(Context context, int weekNumber, int currentWeek) {
+        this.context = context;
         this.weekNumber = weekNumber;
-        this.days = days;
         this.currentWeek = currentWeek;
+        this.dots = getDots();
+    }
+
+    public void saveDot(int dotNumber, int dotValue) {
+        SharedPreferences db = getSharedPreferences(context);
+        String key = getWeekKey(weekNumber);
+
+        // get the current saved values from the db and update them
+        ArrayList<Integer> currentDotsForWeek = getDots();
+
+        currentDotsForWeek.set(dotNumber, dotValue);
+
+        // convert the list into a string
+        String weekAsString = TextUtils.join(",", currentDotsForWeek);
+
+        db.edit()
+                .putString(key, weekAsString)
+                .commit();
+
+        getDots();
+    }
+
+    public ArrayList<Integer> getDots() {
+        SharedPreferences db = getSharedPreferences(context);
+
+        // get the week's data from the db
+        String key = getWeekKey(weekNumber);
+        String weekAsString = db.getString(key, defaultWeekAsString);
+
+        // convert the stringified list into an ArrayList and return it
+        StringTokenizer st = new StringTokenizer(weekAsString, ",");
+
+        ArrayList<Integer> weekAsList = new ArrayList<Integer>();
+        while (st.hasMoreTokens()) {
+            weekAsList.add(Integer.parseInt(st.nextToken()));
+        }
+
+        return weekAsList;
+    }
+
+    private static SharedPreferences getSharedPreferences(Context context) {
+        return context.getSharedPreferences(sharedPrefName, Context.MODE_PRIVATE);
+    }
+
+    private static String getWeekKey(int weekNumber) {
+        return "dots:week:" + weekNumber;
     }
 }
