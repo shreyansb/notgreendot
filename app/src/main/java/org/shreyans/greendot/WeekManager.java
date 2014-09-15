@@ -24,7 +24,7 @@ public final class WeekManager {
         SharedPreferences db = context.getSharedPreferences(sharedPrefName, Context.MODE_PRIVATE);
         String startingWeek = db.getString(startingWeekKey, null);
         if (startingWeek == null) {
-            int currentWeek = getCurrentWeek();
+            int currentWeek = getCurrentWeek() - 1;
             db.edit()
                     .putString(startingWeekKey, Integer.toString(currentWeek))
                     .commit();
