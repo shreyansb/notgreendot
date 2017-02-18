@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -39,9 +40,10 @@ public class WeeksAdapter extends ArrayAdapter<Week> {
         }
 
         int[] dots = new int[] {R.id.circle1, R.id.circle2, R.id.circle3, R.id.heart};
-        for (int dotNumber = 0; dotNumber < dots.length; dotNumber++) {
+        //ImageView heart = (ImageView) weekView.findViewById(dots[dots.length]);
+        for (int dotNumber = 0; dotNumber < dots.length-1; dotNumber++) {
             ImageView dot = (ImageView) weekView.findViewById(dots[dotNumber]);
-            new toggleImageView(dot, dotNumber, week);
+            new toggleImageView(dot, dotNumber, week, weekView);
         }
 
         // Lookup view for data population
@@ -56,6 +58,7 @@ it toggle between the :emptyImage and :filledImage
 class toggleImageView {
     private ImageView image;
     private Week week;
+    private View weekView;
 
     private int state;
     private int dotNumber;
@@ -68,11 +71,13 @@ class toggleImageView {
 
     public toggleImageView(ImageView image,
                            int dotNumber,
-                           Week week) {
+                           Week week,
+                           View weekView) {
         this.image = image;
         this.dotNumber = dotNumber;
         this.week = week;
-        this.isLast = Week.weekLength == dotNumber + 1;
+        this.weekView = weekView;
+        this.isLast = Week.weekLength - 1 == dotNumber + 1;
 
         addImageClickListener();
         setAndSaveState(week.dots.get(dotNumber));
@@ -82,36 +87,44 @@ class toggleImageView {
         image.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                // `1 - state` is a trick to toggle between 0 and 1
                 setAndSaveState(1 - state);
             }
         });
     }
 
-    /* update the image in the UI, as well as the database,
-    but only if the state change is allowed to happen, i.e.
-    we aren't setting the heart before the others, etc.
+    /* update the image in the UI, as well as the database
      */
     private void setAndSaveState(int newState) {
-        Boolean allowed = isStateChangeAllowed(newState);
-        if (!allowed) {
-            return;
+        // update the database
+        state = newState;
+        // TODO update how saveDot works to also update all the dots before this one
+        week.saveDot(dotNumber, state);
+
+        // update the tapped dot and all dots before it
+        int updatedResource;
+        if (newState == 1) {
+            updatedResource = circleFilled;
+            //image.setImageResource(circleFilled);
+        } else {
+            updatedResource = circleEmpty;
         }
 
-        if (newState == 1) {
-            if (isLast) {
-                image.setImageResource(heartFilled);
+        for (int i = 0; i <= dotNumber; i++) {
+            ImageView dot = (ImageView) this.weekView.findViewById(i);
+            dot.setImageResource(updatedResource);
+        }
+
+        // also update the heart
+        if (this.isLast) {
+            ImageView heart = (ImageView) this.weekView.findViewById(week.weekLength - 1);
+
+            if (newState == 1) {
+                heart.setImageResource(heartFilled);
             } else {
-                image.setImageResource(circleFilled);
-            }
-        } else {
-            if (isLast) {
-                image.setImageResource(heartEmpty);
-            } else {
-                image.setImageResource(circleEmpty);
+                heart.setImageResource(heartEmpty);
             }
         }
-        state = newState;
-        week.saveDot(dotNumber, state);
     }
 
     private Boolean isStateChangeAllowed(int newState) {

@@ -27,7 +27,7 @@ public final class WeekManager {
             int currentWeek = getCurrentWeek() - 1;
             db.edit()
                     .putString(startingWeekKey, Integer.toString(currentWeek))
-                    .commit();
+                    .apply();
             return currentWeek;
         } else {
             return Integer.parseInt(startingWeek);
