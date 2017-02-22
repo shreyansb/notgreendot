@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.Date;
 
 
-public class Dots extends Activity {
+public class DotsActivity extends Activity {
 
     ListView mainListView;
     int numWeeks = 6;
@@ -52,14 +52,6 @@ public class Dots extends Activity {
         mainListView = (ListView) findViewById(R.id.mainListView);
         mainListView.setAdapter(adapter);
         mainListView.setDivider(null);
-
-        Button button = (Button) findViewById(R.id.screenshotButton);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                saveAndShareScreenshot();
-            }
-        });
     }
 
     private void saveAndShareScreenshot() {

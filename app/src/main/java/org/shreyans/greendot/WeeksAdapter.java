@@ -17,9 +17,10 @@ import java.util.ArrayList;
  * Thanks to: https://github.com/thecodepath/android_guides/wiki/Using-an-ArrayAdapter-with-ListView
  */
 
-public class WeeksAdapter extends ArrayAdapter<Week> {
+class WeeksAdapter extends ArrayAdapter<Week> {
+    private int[] dots = new int[] {R.id.circle1, R.id.circle2, R.id.circle3, R.id.heart};
 
-    public WeeksAdapter(Context context, ArrayList<Week> weeks) {
+    WeeksAdapter(Context context, ArrayList<Week> weeks) {
         super(context, R.layout.weekly_row, weeks);
     }
 
@@ -39,15 +40,53 @@ public class WeeksAdapter extends ArrayAdapter<Week> {
             label.setText("this week");
         }
 
-        int[] dots = new int[] {R.id.circle1, R.id.circle2, R.id.circle3, R.id.heart};
         //ImageView heart = (ImageView) weekView.findViewById(dots[dots.length]);
         for (int dotNumber = 0; dotNumber < dots.length-1; dotNumber++) {
             ImageView dot = (ImageView) weekView.findViewById(dots[dotNumber]);
-            new toggleImageView(dot, dotNumber, week, weekView);
+            dot.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    // `1 - state` is a trick to toggle between 0 and 1
+                    setAndSaveState(1 - state);
+                }
+            });
+            //new toggleImageView(dot, dotNumber, week, weekView);
         }
 
         // Lookup view for data population
         return weekView;
+    }
+
+    private void setAndSaveState(int newState) {
+        Log.d(getClass().getName(), "updating dot " + dotNumber + " to: " + newState);
+
+        // update the database
+        state = newState;
+        // TODO update how saveDot works to also update all the dots before this one
+        week.saveDot(dotNumber, state);
+
+        if (newState == 1) {
+            // fill all circles up to this one
+            for (int i = 0; i <= dotNumber; i++) {
+                ImageView dot = (ImageView) weekView.findViewById(dots[i]);
+                dot.setImageResource(R.drawable.circle_filled);
+            }
+        } else {
+            // unfill all circles after this
+            for (int i = dotNumber; i < week.weekLength-1; i++) {
+                ImageView dot = (ImageView) weekView.findViewById(dots[i]);
+                dot.setImageResource(R.drawable.circle_empty);
+            }
+        }
+
+        // also update the heart
+        ImageView heart = (ImageView) this.weekView.findViewById(dots[week.weekLength - 1]);
+        if (newState == 0) {
+            heart.setImageResource(R.drawable.heart_empty);
+        }
+        if (newState == 1 && isLast) {
+            heart.setImageResource(R.drawable.heart_filled);
+        }
     }
 }
 
@@ -64,12 +103,9 @@ class toggleImageView {
     private int dotNumber;
     private Boolean isLast = false;
 
-    private final int circleEmpty = R.drawable.circle_empty;
-    private final int circleFilled = R.drawable.circle_filled;
-    private final int heartEmpty = R.drawable.heart_empty;
-    private final int heartFilled = R.drawable.heart_filled;
+    private int[] dots = new int[] {R.id.circle1, R.id.circle2, R.id.circle3, R.id.heart};
 
-    public toggleImageView(ImageView image,
+    private toggleImageView(ImageView image,
                            int dotNumber,
                            Week week,
                            View weekView) {
@@ -96,51 +132,35 @@ class toggleImageView {
     /* update the image in the UI, as well as the database
      */
     private void setAndSaveState(int newState) {
+        Log.d(getClass().getName(), "updating dot " + dotNumber + " to: " + newState);
+
         // update the database
         state = newState;
         // TODO update how saveDot works to also update all the dots before this one
         week.saveDot(dotNumber, state);
 
-        // update the tapped dot and all dots before it
-        int updatedResource;
         if (newState == 1) {
-            updatedResource = circleFilled;
-            //image.setImageResource(circleFilled);
+            // fill all circles up to this one
+            for (int i = 0; i <= dotNumber; i++) {
+                ImageView dot = (ImageView) weekView.findViewById(dots[i]);
+                dot.setImageResource(R.drawable.circle_filled);
+            }
         } else {
-            updatedResource = circleEmpty;
-        }
-
-        for (int i = 0; i <= dotNumber; i++) {
-            ImageView dot = (ImageView) this.weekView.findViewById(i);
-            dot.setImageResource(updatedResource);
+            // unfill all circles after this
+            for (int i = dotNumber; i < week.weekLength-1; i++) {
+                ImageView dot = (ImageView) weekView.findViewById(dots[i]);
+                dot.setImageResource(R.drawable.circle_empty);
+            }
         }
 
         // also update the heart
-        if (this.isLast) {
-            ImageView heart = (ImageView) this.weekView.findViewById(week.weekLength - 1);
-
-            if (newState == 1) {
-                heart.setImageResource(heartFilled);
-            } else {
-                heart.setImageResource(heartEmpty);
-            }
+        ImageView heart = (ImageView) this.weekView.findViewById(dots[week.weekLength - 1]);
+        if (newState == 0) {
+            heart.setImageResource(R.drawable.heart_empty);
+        }
+        if (newState == 1 && isLast) {
+            heart.setImageResource(R.drawable.heart_filled);
         }
     }
 
-    private Boolean isStateChangeAllowed(int newState) {
-        Week freshWeek = new Week(week.context, week.weekNumber, week.currentWeek);
-        if (newState == 1) {
-            if (dotNumber == 0) {
-                return true;
-            } else {
-                return freshWeek.dots.get(dotNumber - 1) == 1;
-            }
-        } else {
-            if (dotNumber == freshWeek.dots.size() - 1) {
-                return true;
-            } else {
-                return freshWeek.dots.get(dotNumber + 1) == 0;
-            }
-        }
-    }
 }

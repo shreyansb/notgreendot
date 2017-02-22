@@ -18,8 +18,8 @@ public class Week {
     public Context context;
 
     private static final String sharedPrefName = "dotsDB";
-    private static final String defaultWeekAsString = "0,0,0,0";
-    public static final int weekLength = 4;
+    private static final String defaultWeekAsString = "0,0,0";
+    public static final int weekLength = 3;
 
     public Week(Context context, int weekNumber, int currentWeek) {
         this.context = context;
@@ -35,6 +35,9 @@ public class Week {
         // get the current saved values from the db and update them
         ArrayList<Integer> currentDotsForWeek = getDots();
 
+        if (dotValue == 1) {
+            for (int i = 0; i < weekLength)
+        }
         currentDotsForWeek.set(dotNumber, dotValue);
 
         // convert the list into a string
